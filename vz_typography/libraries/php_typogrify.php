@@ -5,8 +5,9 @@
  ================================================================
  * Prettifies your web typography by preventing ugly quotes and 'widows' 
  * and providing CSS hooks to style some special cases.
- * Modified from Hamish Macpherson's port of the original Python code 
- * by Christian Metts.
+ *
+ * Modified by Eli Van Zoeren from Hamish Macpherson's port of the original 
+ * Python code by Christian Metts.
  *
  *
  * Copyright (c) 2007, Hamish Macpherson

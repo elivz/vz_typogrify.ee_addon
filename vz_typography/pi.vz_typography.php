@@ -1,4 +1,4 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
  * VZ Typography
@@ -13,7 +13,7 @@
 
 $plugin_info = array(
 	'pi_name'		=> 'VZ Typography',
-	'pi_version'	=> '0.5.0',
+	'pi_version'	=> '0.5',
 	'pi_author'		=> 'Eli Van Zoeren',
 	'pi_author_url'	=> 'http://elivz.com',
 	'pi_description'=> 'Process text using PHP Typography',
