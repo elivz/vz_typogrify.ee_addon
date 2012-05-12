@@ -5,21 +5,9 @@
  ================================================================
  * Prettifies your web typography by preventing ugly quotes and 'widows' 
  * and providing CSS hooks to style some special cases.
- * It's a port of the original Python code by Christian Metts.
+ * Modified from Hamish Macpherson's port of the original Python code 
+ * by Christian Metts.
  *
- *      Announcement:
- *      <http://www2.jeffcroft.com/sidenotes/2007/may/29/typogrify-easily-produce-web-typography-doesnt-suc/>
- *
- *      Example Page:
- *      <http://static.mintchaos.com/projects/typogrify/>
- *
- *      Project Page:
- *      <http://code.google.com/p/typogrify/>
- *
- *      PHP SmartyPants
- *      <http://www.michelf.com/projects/php-smartypants/>
- *
- * ==============================================================
  *
  * Copyright (c) 2007, Hamish Macpherson
  * 
@@ -57,6 +45,32 @@ class Php_typogrify
     public function setText($text)
     {
         $this->text = $text;
+    }
+
+    public function getText() 
+    {
+        return $this->text;
+    }
+
+    /**
+     * typogrify
+     * 
+     * The super typography filter.   
+     * Applies the following filters: widont, smartypants, caps, amp, initial_quotes
+     * Optionally choose to apply quote span tags to Gullemets as well.
+     */
+    public function run_all()
+    {
+        $this->amp();
+        $this->widont();
+        $this->caps();
+        $this->initial_quotes();
+        $this->dash();
+        $this->exponents();
+        $this->ordinals();
+        $this->marks();
+        
+        return $this->text;
     }
 
     /**
@@ -128,7 +142,7 @@ class Php_typogrify
     public function caps()
     {
         // Tokenize; see smartypants.php
-        $tokens = $this->_TokenizeHTML($this->text);    
+        $tokens = $this->_tokenize_html($this->text);    
         $result = array();
         $in_skipped_tag = false;
         
@@ -175,55 +189,6 @@ class Php_typogrify
         return $this; 
     }
 
-    protected function _TokenizeHTML($str) {
-    #
-    #   Parameter:  String containing HTML markup.
-    #   Returns:    An array of the tokens comprising the input
-    #               string. Each token is either a tag (possibly with nested,
-    #               tags contained therein, such as <a href="<MTFoo>">, or a
-    #               run of text between tags. Each element of the array is a
-    #               two-element array; the first is either 'tag' or 'text';
-    #               the second is the actual value.
-    #
-    #
-    #   Regular expression derived from the _tokenize() subroutine in 
-    #   Brad Choate's MTRegex plugin.
-    #   <http://www.bradchoate.com/past/mtregex.php>
-    #
-        $index = 0;
-        $tokens = array();
-
-        $match = '(?s:<!(?:--.*?--\s*)+>)|'.    # comment
-                 '(?s:<\?.*?\?>)|'.             # processing instruction
-                                                # regular tags
-                 '(?:<[/!$]?[-a-zA-Z0-9:]+\b(?>[^"\'>]+|"[^"]*"|\'[^\']*\')*>)'; 
-
-        $parts = preg_split("{($match)}", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        foreach ($parts as $part) {
-            if (++$index % 2 && $part != '') 
-                $tokens[] = array('text', $part);
-            else
-                $tokens[] = array('tag', $part);
-        }
-        return $tokens;
-    }
-
-    private function _quote_wrapper( $matchobj )
-    {
-        if ( !empty($matchobj[7]) )
-        {
-            $classname = "dquo";
-            $quote = $matchobj[7];
-        }
-        else
-        {
-            $classname = "quo";
-            $quote = $matchobj[8];
-        }
-        return sprintf('%s<span class="%s">%s</span>', $matchobj[1], $classname, $quote);
-    }
-
     /**
      * initial_quotes
      *
@@ -265,12 +230,6 @@ class Php_typogrify
      * 
      * Empty HTMLs shouldn't error
      */
-    /* function widont( $text )
-    {
-        return preg_replace( '|([^\s])\s+([^\s]+)\s*$|', '$1&nbsp;$2', $text);
-    }
-    */
-
     public function widont()
     {
         // This regex is a beast, tread lightly
@@ -282,27 +241,99 @@ class Php_typogrify
     }
 
     /**
-     * typogrify
-     * 
-     * The super typography filter.   
-     * Applies the following filters: widont, smartypants, caps, amp, initial_quotes
-     * Optionally choose to apply quote span tags to Gullemets as well.
+     * exponents
+     *
+     * Converts exponents to superscript
      */
-    public function run_all( $do_guillemets = false )
+    public function exponents()
     {
-        $this->amp();
-        $this->widont();
-        //$this->SmartyPants();
-        $this->caps();
-        $this->initial_quotes( $do_guillemets );
-        $this->dash();
-        
-        return $this->text;
+        //handle exponents (ie. 4^2)
+        $exponent_finder = "/\b(\d+)\^(\w+)\b/xu";
+        $this->text = preg_replace($exponent_finder, '$1<sup>$2</sup>', $this->text);
+
+        return $this;
     }
 
-    public function output() 
+    /**
+     * ordinals
+     *
+     * Makes ordinal suffixes superscript
+     */
+    public function ordinals()
     {
-        return $this->text();
+        //handle ordinals (ie. 2nd)
+        $ordinal_finder = "/\b(\d+)(st|nd|rd|th)\b/";
+        $this->text = preg_replace($ordinal_finder, '$1<sup>$2</sup>', $this->text);
+
+        return $this;
+    }
+
+    /**
+     * marks
+     *
+     * Turns various marks - (c), (tm), etc. - into their proper entities
+     */
+    public function marks()
+    {
+        $this->text = str_ireplace('(c)', '&copy;', $this->text);
+        $this->text = str_ireplace('(r)', '&reg;', $this->text);
+        $this->text = str_ireplace('(p)', '&#8471;', $this->text);
+        $this->text = str_ireplace('(sm)', '&#8480;', $this->text);
+        $this->text = str_ireplace('(tm)', '&trade;', $this->text);
+
+        return $this;
+    }
+
+    /*
+     * _tokenize_html
+     *
+     * Parameter:  String containing HTML markup.
+     * Returns:    An array of the tokens comprising the input
+     *             string. Each token is either a tag (possibly with nested,
+     *             tags contained therein, such as <a href="<MTFoo>">, or a
+     *             run of text between tags. Each element of the array is a
+     *             two-element array; the first is either 'tag' or 'text';
+     *             the second is the actual value.
+     *
+     *
+     * Regular expression derived from the _tokenize() subroutine in 
+     * Brad Choate's MTRegex plugin.
+     * <http://www.bradchoate.com/past/mtregex.php>
+     */
+    protected function _tokenize_html($str) {
+    #
+        $index = 0;
+        $tokens = array();
+
+        $match = '(?s:<!(?:--.*?--\s*)+>)|'.    # comment
+                 '(?s:<\?.*?\?>)|'.             # processing instruction
+                                                # regular tags
+                 '(?:<[/!$]?[-a-zA-Z0-9:]+\b(?>[^"\'>]+|"[^"]*"|\'[^\']*\')*>)'; 
+
+        $parts = preg_split("{($match)}", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        foreach ($parts as $part) {
+            if (++$index % 2 && $part != '') 
+                $tokens[] = array('text', $part);
+            else
+                $tokens[] = array('tag', $part);
+        }
+        return $tokens;
+    }
+
+    private function _quote_wrapper( $matchobj )
+    {
+        if ( !empty($matchobj[7]) )
+        {
+            $classname = "dquo";
+            $quote = $matchobj[7];
+        }
+        else
+        {
+            $classname = "quo";
+            $quote = $matchobj[8];
+        }
+        return sprintf('%s<span class="%s">%s</span>', $matchobj[1], $classname, $quote);
     }
 
 }

@@ -45,45 +45,30 @@ class Vz_typography {
 		$this->EE->php_typogrify->setText($in);
 
 		// Set options
-		// if ($this->EE->TMPL->fetch_param('disable'))
-		// {
-		// 	$disable = explode('|', $this->EE->TMPL->fetch_param('disable'));
-		// 	$this->_set_options($disable, FALSE);
-		// }
-		// if ($this->EE->TMPL->fetch_param('enable'))
-		// {
-		// 	$enable = explode('|', $this->EE->TMPL->fetch_param('enable'));
-		// 	$this->_set_options($enable, TRUE);
-		// }
+		if ($this->EE->TMPL->fetch_param('disable'))
+		{
+			$disable = explode('|', $this->EE->TMPL->fetch_param('disable'));
+			$this->_set_options($disable, FALSE);
+		}
+		if ($this->EE->TMPL->fetch_param('enable'))
+		{
+			$enable = explode('|', $this->EE->TMPL->fetch_param('enable'));
+			$this->_set_options($enable, TRUE);
+		}
 
-		// Run the filters
-		$out = $this->EE->php_typogrify->run_all();
-
-		$this->return_data = $out;
+		$this->return_data = $this->EE->php_typogrify->getText();
 	}
 
 	private function _set_options($options, $value)
 	{
-		$this->typo->set_hyphenation(in_array('hyphenation', $options) == $value);
-		$this->typo->set_fraction_spacing(in_array('fractions', $options) == $value);
-		$this->typo->set_unit_spacing(in_array('units', $options) == $value);
-		$this->typo->set_dash_spacing(in_array('dash_spacing', $options) == $value);
-		$this->typo->set_single_character_word_spacing(in_array('single_character_word', $options) == $value);
-		$this->typo->set_space_collapse(in_array('space_collapse', $options) == $value);
-		$this->typo->set_dewidow(in_array('widows', $options) == $value);
-		$this->typo->set_wrap_hard_hyphens(in_array('hard_hyphens', $options) == $value);
-		$this->typo->set_wrap_hard_hyphens(in_array('emails', $options) == $value);
-		$this->typo->set_url_wrap(in_array('urls', $options) == $value);
-		$this->typo->set_smart_diacritics(in_array('diacritics', $options) == $value);
-		$this->typo->set_smart_marks(in_array('marks', $options) == $value);
-		$this->typo->set_smart_math(in_array('math', $options) == $value);
-		$this->typo->set_smart_exponents(in_array('exponents', $options) == $value);
-		$this->typo->set_smart_fractions(in_array('fractions', $options) == $value);
-		$this->typo->set_smart_ordinal_suffix(in_array('ordinals', $options) == $value);
-		$this->typo->set_style_ampersands(in_array('spans', $options) == $value);
-		$this->typo->set_style_caps(in_array('spans', $options) == $value);
-		$this->typo->set_style_numbers(in_array('spans', $options) == $value);
-		$this->typo->set_style_initial_quotes(in_array('spans', $options) == $value);
+		if (in_array('ampersands', $options) == $value) $this->EE->php_typogrify->amp();
+		if (in_array('widows', $options) == $value) $this->EE->php_typogrify->widont();
+		if (in_array('caps', $options) == $value) $this->EE->php_typogrify->caps();
+		if (in_array('quotes', $options) == $value) $this->EE->php_typogrify->initial_quotes();
+		if (in_array('dashes', $options) == $value) $this->EE->php_typogrify->dash();
+		if (in_array('exponents', $options) == $value) $this->EE->php_typogrify->exponents();
+		if (in_array('ordinals', $options) == $value) $this->EE->php_typogrify->ordinals();
+		if (in_array('marks', $options) == $value) $this->EE->php_typogrify->marks();
 	}
 	
 	// ----------------------------------------------------------------
