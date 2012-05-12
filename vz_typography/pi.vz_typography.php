@@ -32,10 +32,6 @@ class Vz_typography {
 	{
 		$this->EE =& get_instance();
 
-		// Load the typography library
-		$this->EE->load->library('php_typography');
-		$this->typo = new Php_typography();
-
 		// Get the text we'll be formatting
 		if (!empty($str))
 			$in = $str;
@@ -44,26 +40,24 @@ class Vz_typography {
 		else
 			return '';
 
-		// Don't bother with filters that EE runs itself
-		$this->typo->set_smart_quotes(FALSE);
-		$this->typo->set_smart_dashes(FALSE);
-		$this->typo->set_smart_ellipses(FALSE);
+		// Load the typography library
+		$this->EE->load->library('php_typogrify');
+		$this->EE->php_typogrify->setText($in);
 
 		// Set options
-		if ($this->EE->TMPL->fetch_param('disable'))
-		{
-			$disable = explode('|', $this->EE->TMPL->fetch_param('disable'));
-			$this->_set_options($disable, FALSE);
-		}
-		if ($this->EE->TMPL->fetch_param('enable'))
-		{
-			$enable = explode('|', $this->EE->TMPL->fetch_param('enable'));
-			$this->_set_options($enable, TRUE);
-		}
+		// if ($this->EE->TMPL->fetch_param('disable'))
+		// {
+		// 	$disable = explode('|', $this->EE->TMPL->fetch_param('disable'));
+		// 	$this->_set_options($disable, FALSE);
+		// }
+		// if ($this->EE->TMPL->fetch_param('enable'))
+		// {
+		// 	$enable = explode('|', $this->EE->TMPL->fetch_param('enable'));
+		// 	$this->_set_options($enable, TRUE);
+		// }
 
 		// Run the filters
-		$out = $this->typo->process($in);
-		$out = htmlentities($out, NULL, "UTF-8", FALSE);
+		$out = $this->EE->php_typogrify->run_all();
 
 		$this->return_data = $out;
 	}
