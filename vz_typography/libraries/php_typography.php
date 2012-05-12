@@ -2,7 +2,7 @@
 /*
 	Project: PHP Typography
 	Project URI: http://kingdesk.com/projects/php-tyography/
-	Version: 1.21
+	Version: 2.0
 
 
 	Copyright 2009, KINGdesk, LLC. Licensed under the GNU General Public License 2.0. If you use, modify and/or redistribute this software, you must leave the KINGdesk, LLC copyright information, the request for a link to http://kingdesk.com, and the web design services contact information unchanged. If you redistribute this software, or any derivative, it must be released under the GNU General Public License 2.0. This program is distributed without warranty (implied or otherwise) of suitability for any particular purpose. See the GNU General Public License for full license terms <http://creativecommons.org/licenses/GPL/2.0/>.
@@ -1881,6 +1881,7 @@ class Php_typography {
 	function style_caps($parsedHTMLtoken) {
 		if(!isset($this->settings["styleCaps"]) || !$this->settings["styleCaps"]) return $parsedHTMLtoken;
 		
+/*
 		// \p{Lu} equals upper case letters and should match non english characters; since PHP 4.4.0 and 5.1.0
 		// for more info, see http://www.regextester.com/pregsyntax.html#regexp.reference.unicode
 		$pattern = '
@@ -1905,7 +1906,32 @@ class Php_typography {
 				(?![\w\-_'.$this->chr["zeroWidthSpace"].$this->chr["softHyphen"].'])
 							# negative lookahead assertion
 			'; // required modifiers: x (multiline pattern) u (utf8)
+*/
 		
+		// Servers with PCRE compiled without "--enable-unicode-properties" fail at \p{Lu} by returning an empty string (this leaving the screen void of text
+		// thus are testing this alternative
+		$pattern = '
+				(?<![\w\-_'.$this->chr["zeroWidthSpace"].$this->chr["softHyphen"].'])
+												# negative lookbehind assertion
+				(
+					(?:							# CASE 1: " 9A "
+						[0-9]+					# starts with at least one number
+						[A-ZÀ-ÖØ-Ý]					# must contain at least one capital letter
+						(?:[A-ZÀ-ÖØ-Ý]|[0-9]|\-|_|'.$this->chr["zeroWidthSpace"].'|'.$this->chr["softHyphen"].')*
+												# may be followed by any number of numbers capital letters, hyphens, underscores, zero width spaces, or soft hyphens
+					)
+					|
+					(?:							# CASE 2: " A9 "
+						[A-ZÀ-ÖØ-Ý]					# starts with capital letter
+						(?:[A-ZÀ-ÖØ-Ý]|[0-9])		# must be followed a number or capital letter
+						(?:[A-ZÀ-ÖØ-Ý]|[0-9]|\-|_|'.$this->chr["zeroWidthSpace"].'|'.$this->chr["softHyphen"].')*
+												# may be followed by any number of numbers capital letters, hyphens, underscores, zero width spaces, or soft hyphens
+
+					)
+				)
+				(?![\w\-_'.$this->chr["zeroWidthSpace"].$this->chr["softHyphen"].'])
+							# negative lookahead assertion
+			'; // required modifiers: x (multiline pattern) u (utf8)
 		$parsedHTMLtoken["value"] = preg_replace("/$pattern/xu", '<span class="caps">$1</span>', $parsedHTMLtoken["value"]);
 		
 		return $parsedHTMLtoken;
@@ -2092,8 +2118,8 @@ class Php_typography {
 				for($i=0; $i < $wordLength +1; $i++) {
 					array_push($wordPattern, "0");
 				}
-				// we grab all possible segments from $parsedTextToken of length 2 through $this->settings["hyphenationPatternMaxSegment"]
-				for($segmentLength=2; ($segmentLength <= $wordLength) && ($segmentLength <= $this->settings["hyphenationPatternMaxSegment"]); $segmentLength++) {
+				// we grab all possible segments from $parsedTextToken of length 1 through $this->settings["hyphenationPatternMaxSegment"]
+				for($segmentLength=1; ($segmentLength <= $wordLength) && ($segmentLength <= $this->settings["hyphenationPatternMaxSegment"]); $segmentLength++) {
 					for($segmentPosition=0; $segmentPosition + $segmentLength <= $wordLength; $segmentPosition++) {
 						if($multibyte)
 							$segment = mb_strtolower(mb_substr($parsedTextToken["value"], $segmentPosition, $segmentLength, "UTF-8"), "UTF-8");
