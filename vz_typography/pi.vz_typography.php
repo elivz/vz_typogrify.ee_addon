@@ -40,6 +40,12 @@ class Vz_typography {
 		else
 			return '';
 
+		// First run EE's typography filter to convert to curly quotes, etc.
+		$this->EE->load->library('typography');
+		$this->EE->typography->initialize();
+		$in = str_replace('&quot;', '"', $in);
+		$in = $this->EE->typography->format_characters($in);
+
 		// Load the typography library
 		$this->EE->load->library('php_typogrify');
 		$this->EE->php_typogrify->setText($in);
@@ -59,7 +65,7 @@ class Vz_typography {
 		$this->return_data = $this->EE->php_typogrify->getText();
 	}
 
-	private function _set_options($options, $value)
+	protected function _set_options($options, $value)
 	{
 		if (in_array('ampersands', $options) == $value) $this->EE->php_typogrify->amp();
 		if (in_array('widows', $options) == $value) $this->EE->php_typogrify->widont();
@@ -69,6 +75,15 @@ class Vz_typography {
 		if (in_array('exponents', $options) == $value) $this->EE->php_typogrify->exponents();
 		if (in_array('ordinals', $options) == $value) $this->EE->php_typogrify->ordinals();
 		if (in_array('marks', $options) == $value) $this->EE->php_typogrify->marks();
+	}
+
+	public function titlecase()
+	{
+	    $in = $this->EE->TMPL->tagdata;
+	    if (!$in) return;
+
+		$this->EE->load->library('php_typogrify');
+		return $this->EE->php_typogrify->title_case($in);
 	}
 	
 	// ----------------------------------------------------------------
@@ -81,7 +96,7 @@ class Vz_typography {
 		ob_start();
 ?>
 
-VZ Typography is a thin wrapper around the library from <a href="http://blog.hamstu.com/2007/05/31/web-typography-just-got-better/">wp-typogrify</a>.  It provides lots of typographical niceties, including widow prevention, styling hooks for special characters, etc.
+VZ Typogrify is a thin wrapper around the library from <a href="http://blog.hamstu.com/2007/05/31/web-typography-just-got-better/">php-typogrify</a>.  It provides lots of typographical niceties, including widow prevention, styling hooks for special characters, etc.
 <?php
 		$buffer = ob_get_contents();
 		ob_end_clean();
