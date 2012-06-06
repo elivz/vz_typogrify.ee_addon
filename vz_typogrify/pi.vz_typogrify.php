@@ -41,10 +41,10 @@ class Vz_typogrify {
 			return '';
 
 		// First run EE's Typogrify filter to convert to curly quotes, etc.
-		$this->EE->load->library('Typogrify');
-		$this->EE->Typogrify->initialize();
+		$this->EE->load->library('typography');
+		$this->EE->typography->initialize();
 		$in = str_replace('&quot;', '"', $in);
-		$in = $this->EE->Typogrify->format_characters($in);
+		$in = $this->EE->typography->format_characters($in);
 
 		// Load the Typogrify library
 		$this->EE->load->library('php_typogrify');
