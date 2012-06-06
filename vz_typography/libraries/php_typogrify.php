@@ -340,7 +340,10 @@ class Php_typogrify
     // Original Title Case script © John Gruber <daringfireball.net>
     // JavaScript port © David Gouch <individed.com>
     // PHP port of the above by Kroc Camen <camendesign.com>
-    public function title_case($title) {
+    // http://camendesign.com/code/title-case
+    public function title_case() {
+        $title = $this->text;
+
         //remove HTML, storing it for later
         //       HTML elements to ignore    | tags  | entities
         $regx = '/<(code|var)[^>]*>.*?<\/\1>|<[^>]+>|&\S+;/';
@@ -389,7 +392,10 @@ class Php_typogrify
         
         //restore the HTML
         foreach ($html[0] as &$tag) $title = substr_replace ($title, $tag[0], $tag[1], 0);
-        return $title;
+        
+        $this->text = $title;
+
+        return $this;
     }
 
 }
