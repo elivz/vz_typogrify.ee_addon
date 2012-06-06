@@ -8,15 +8,15 @@
  * @category	Plugin
  * @author		Eli Van Zoeren
  * @link		http://elivz.com
- * @license   http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported
+ * @license     http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported
  */
 
 $plugin_info = array(
 	'pi_name'		=> 'VZ Typography',
-	'pi_version'	=> '0.5',
+	'pi_version'	=> '0.6',
 	'pi_author'		=> 'Eli Van Zoeren',
 	'pi_author_url'	=> 'http://elivz.com',
-	'pi_description'=> 'Process text using PHP Typography',
+	'pi_description'=> 'Process text using Typogrify',
 	'pi_usage'		=> Vz_typography::usage()
 );
 
@@ -45,15 +45,15 @@ class Vz_typography {
 		$this->EE->php_typogrify->setText($in);
 
 		// Set options
-		if ($this->EE->TMPL->fetch_param('disable'))
+        if ($enable = $this->EE->TMPL->fetch_param('enable'))
+        {
+            $enable = explode('|', $enable);
+            $this->_set_options($enable, TRUE);
+        }
+		else
 		{
-			$disable = explode('|', $this->EE->TMPL->fetch_param('disable'));
+			$disable = explode('|', $this->EE->TMPL->fetch_param('disable', ''));
 			$this->_set_options($disable, FALSE);
-		}
-		if ($this->EE->TMPL->fetch_param('enable'))
-		{
-			$enable = explode('|', $this->EE->TMPL->fetch_param('enable'));
-			$this->_set_options($enable, TRUE);
 		}
 
 		$this->return_data = $this->EE->php_typogrify->getText();
@@ -81,7 +81,7 @@ class Vz_typography {
 		ob_start();
 ?>
 
-VZ Typography is a thin wrapper around the <a href="http://kingdesk.com/projects/php-typography/">PHP Typography</a> library.  It provides lots of typographical niceties, including widow prevention, hyphenation, styling hooks for special characters, etc.
+VZ Typography is a thin wrapper around the library from <a href="http://blog.hamstu.com/2007/05/31/web-typography-just-got-better/">wp-typogrify</a>.  It provides lots of typographical niceties, including widow prevention, styling hooks for special characters, etc.
 <?php
 		$buffer = ob_get_contents();
 		ob_end_clean();
