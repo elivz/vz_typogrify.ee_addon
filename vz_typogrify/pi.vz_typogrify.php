@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * VZ Typography
+ * VZ Typogrify
  *
  * @package		ExpressionEngine
  * @subpackage	Addons
@@ -12,16 +12,16 @@
  */
 
 $plugin_info = array(
-	'pi_name'		=> 'VZ Typography',
+	'pi_name'		=> 'VZ Typogrify',
 	'pi_version'	=> '0.7',
 	'pi_author'		=> 'Eli Van Zoeren',
 	'pi_author_url'	=> 'http://elivz.com',
 	'pi_description'=> 'Process text using Typogrify',
-	'pi_usage'		=> Vz_typography::usage()
+	'pi_usage'		=> Vz_typogrify::usage()
 );
 
 
-class Vz_typography {
+class Vz_typogrify {
 
 	public $return_data;
     
@@ -40,13 +40,13 @@ class Vz_typography {
 		else
 			return '';
 
-		// First run EE's typography filter to convert to curly quotes, etc.
-		$this->EE->load->library('typography');
-		$this->EE->typography->initialize();
+		// First run EE's Typogrify filter to convert to curly quotes, etc.
+		$this->EE->load->library('Typogrify');
+		$this->EE->Typogrify->initialize();
 		$in = str_replace('&quot;', '"', $in);
-		$in = $this->EE->typography->format_characters($in);
+		$in = $this->EE->Typogrify->format_characters($in);
 
-		// Load the typography library
+		// Load the Typogrify library
 		$this->EE->load->library('php_typogrify');
 		$this->EE->php_typogrify->setText($in);
 
@@ -111,18 +111,18 @@ class Vz_typography {
 		ob_start();
 ?>
 
-VZ Typogrify is a thin wrapper around the library from <a href="http://blog.hamstu.com/2007/05/31/web-typography-just-got-better/">php-typogrify</a>. It provides lots of typographical niceties, including widow prevention, styling hooks for special characters, etc.
+VZ Typogrify is a thin wrapper around the library from <a href="http://blog.hamstu.com/2007/05/31/web-typogrify-just-got-better/">php-typogrify</a>. It provides lots of typographical niceties, including widow prevention, styling hooks for special characters, etc.
 
 Tag Pairs
 ---------
 
-{exp:vz_typography [enable|disable] [titlecase="yes"]}
+{exp:vz_typogrify [enable|disable] [titlecase="yes"]}
 
 Runs the typographic filters on the enclosed text. The enable and disable paramters accept a pipe-separated list of filters to run, or to not run. If you do not include either parameter, all filters will be run. Available filters are listed below. *Either* the enable or disable parameter can be set, but not both.
 
 Set the `titlecase` parameter to `yes` if you also want the output to be titlecased (see below).
 
-{exp:vz_typography:titlecase}
+{exp:vz_typogrify:titlecase}
 
 Title-cases the enclosed text by capitalizing the first letter of words, except for short words like "the" and "or". This filter uses a modified version of John Gruber's script (http://daringfireball.net/2008/05/title_case).
 
@@ -141,17 +141,17 @@ Available Filters
 Examples
 --------
 
-    {exp:vz_typography enable="widows|ampersands"}
+    {exp:vz_typogrify enable="widows|ampersands"}
         <p>This, that, & the other.</p>
-    {/exp:vz_typography}
+    {/exp:vz_typogrify}
 
 becomes:
 
     <p>This, that, <span class="amp">&amp;</span> the&nbsp;other.</p>
 
-    {exp:vz_typography:titlecase}
+    {exp:vz_typogrify:titlecase}
         <p>This, that, & the other.</p>
-    {/exp:vz_typography:titlecase}
+    {/exp:vz_typogrify:titlecase}
 
 becomes:
 
@@ -165,5 +165,5 @@ becomes:
 }
 
 
-/* End of file pi.vz_typography.php */
-/* Location: /system/expressionengine/third_party/vz_typography/pi.vz_typography.php */
+/* End of file pi.vz_typogrify.php */
+/* Location: /system/expressionengine/third_party/vz_typogrify/pi.vz_typogrify.php */
